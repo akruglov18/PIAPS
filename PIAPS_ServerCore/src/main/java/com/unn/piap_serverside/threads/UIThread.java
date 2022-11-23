@@ -4,14 +4,17 @@
  */
 package com.unn.piap_serverside.threads;
 
+import com.unn.piap_serverside.Log;
 import com.unn.piap_serverside.interfaces.SCMI;
+import com.unn.piap_serverside.ui_modules.UIM_SMTS;
 
 /**
  *
  * @author STALKER
  */
-public class UIThread extends javax.swing.JFrame {
+public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICTIfc{
     private final SCMI routerThrd;
+    
     /**
      * Creates new form UIThread
      */
@@ -21,7 +24,7 @@ public class UIThread extends javax.swing.JFrame {
         RouterThread routerThread = new RouterThread();
         this.routerThrd = routerThread;
         
-        UIChangerThread uict = new UIChangerThread(routerThread);
+        UIChangerThread uict = new UIChangerThread(routerThread, this);
         routerThread.registerChild(uict);
         
         DBManagerThread dbmt = new DBManagerThread(routerThread);
@@ -35,11 +38,28 @@ public class UIThread extends javax.swing.JFrame {
         SocketManagerThread smt = new SocketManagerThread(routerThrd);
         routerThread.registerChild(smt);
         
+        uIM_SMTS1.setRouter(routerThread);
+        
+        
+        
+        routerThread.start();
         uict.start();
         dbmt.start();
         rmt.start();
         smt.start();
+        
+        
+        
     }
+    
+    
+    // UIChangerThread interface implementation
+    @Override
+    public void setServerSocketStatus(String status) {
+        uIM_SMTS1.setStatusLabel(status);
+    }
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -50,17 +70,25 @@ public class UIThread extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        uIM_SMTS1 = new com.unn.piap_serverside.ui_modules.UIM_SMTS();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(uIM_SMTS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(205, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(uIM_SMTS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(208, Short.MAX_VALUE))
         );
 
         pack();
@@ -102,5 +130,6 @@ public class UIThread extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.unn.piap_serverside.ui_modules.UIM_SMTS uIM_SMTS1;
     // End of variables declaration//GEN-END:variables
 }
