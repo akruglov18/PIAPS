@@ -24,7 +24,11 @@ public class SCM {
     public enum TYPE {
         NONE,
         GLOBAL_HANDSHAKE,
-        GLOBAL_TERMINATE
+        GLOBAL_TERMINATE,
+        
+        SMT_SET_PORT,
+        SMT_START_LISTENING,
+        SMT_STOP_LISTENING
     }
     
     public SCM.TID from;
