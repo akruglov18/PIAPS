@@ -21,7 +21,7 @@ public class ServerSocketThread extends Thread {
             return true;
         } catch (IOException e) {
             Log.error("Can't close serverSocket");
-            return false;
+            return true;
         }
     }
 
@@ -29,7 +29,11 @@ public class ServerSocketThread extends Thread {
     public void run() {
         try {
             Socket client = server.accept();
-            // Registration code
+            SCM ms = SCM.nm()
+                    .setFrom(SCM.TID.SERVER_SOCKET_THREAD)
+                    .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                    .setType(SCM.TYPE.SCT_ADD_NEW_CLIENT)
+                    .setBody((Object) client);
         } catch (IOException e) {
             Log.info("Server has been closed");
         }
