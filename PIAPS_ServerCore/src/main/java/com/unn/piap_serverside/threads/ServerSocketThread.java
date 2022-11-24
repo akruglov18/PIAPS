@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ServerSocketThread extends ThreadBase {
+public class ServerSocketThread extends Thread {
 
     protected ServerSocket server;
 
@@ -32,14 +32,5 @@ public class ServerSocketThread extends ThreadBase {
         } catch (IOException e) {
             Log.info("Server has been closed");
         }
-    }
-
-    @Override
-    protected void terminationCallback() {
-
-    }
-    @Override
-    protected boolean handlePersonalMessage(SCM msg) {
-        return false;
     }
 }
