@@ -30,7 +30,7 @@ public class SocketManagerThread extends ThreadBase {
 
     @Override
     protected void terminationCallback() {
-        
+        serverSocketThread.stopListening();
     }
 
     @Override

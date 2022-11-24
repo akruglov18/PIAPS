@@ -25,6 +25,7 @@ public class ServerSocketThread extends Thread {
         }
     }
 
+    @Override
     public void run() {
         try {
             Socket client = server.accept();
