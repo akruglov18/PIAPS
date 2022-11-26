@@ -11,4 +11,12 @@
         <exec.mainClass>com.unn.piaps.PIAPS</exec.mainClass>
     </properties>
     <name>PIAPS_ClientSide</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.9.0</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
 </project>
