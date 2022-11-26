@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<hibernate-mapping xmlns="http://www.hibernate.org/xsd/hibernate-mapping">
+    <class name="com.unn.piap_serverside.database.MsgTableRecord" table="msg_table">
+        <id name="msgId" column="msgid"/>
+        <property name="userIdFrom" column="useridfrom"/>
+        <property name="userIdTo" column="useridto"/>
+        <property name="strTimeStamp" column="strtimestamp"/>
+        <property name="theme" column="theme"/>
+        <property name="body" column="body"/>
+    </class>
+    
+    <class name="com.unn.piap_serverside.database.UsersTableRecord" table="users_table">
+        <id name="userId" column="userid"/>
+        <property name="login" column="login"/>
+        <property name="password" column="password"/>
+        <property name="type" column="type"/>
+        <property name="fio" column="fio"/>
+    </class>
+    
+    <class name="com.unn.piap_serverside.database.ResourceTableRecord" table="resource_table">
+        <id name="type" column="type"/>
+        <property name="name" column="name"/>
+        <property name="count" column="count"/>
+    </class>
+    
+    <class name="com.unn.piap_serverside.database.RequestsTableRecord" table="requests_table">
+        <id name="reqId" column="reqid"/>
+        <property name="userId" column="userid"/>
+        <property name="status" column="status"/>
+        <property name="adtNum" column="adtnum"/>
+        <property name="regDate" column="regdate"/>
+        <property name="regTime" column="regtime"/>
+        <property name="chairCnt" column="chaircnt"/>
+        <property name="projCnt" column="projcnt"/>
+        <property name="boardCnt" column="boardcnt"/>
+    </class>
+</hibernate-mapping>
