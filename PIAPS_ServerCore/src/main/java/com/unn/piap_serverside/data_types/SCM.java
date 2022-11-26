@@ -17,6 +17,7 @@ public class SCM {
         DB_MANAGER_THREAD,
         SHUTDOWN_HOOK_THREAD,
         SOCKET_MANAGER_THREAD,
+        SERVER_SOCKET_THREAD,
         UI_THREAD,
         UI_CHANGER_THREAD
     }
@@ -28,7 +29,9 @@ public class SCM {
         
         SMT_SET_PORT,
         SMT_START_LISTENING,
-        SMT_STOP_LISTENING
+        SMT_STOP_LISTENING,
+
+        SCT_ADD_NEW_CLIENT
     }
     
     public SCM.TID from;
