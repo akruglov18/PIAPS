@@ -5,12 +5,12 @@
 package com.unn.user_core;
 
 import com.unn.user_core.data_types.UCM;
-import com.unn.user_core.data_types.UIM;
 import com.unn.user_core.interfaces.UIMI;
 import com.unn.user_core.threads.InterfaceThread;
 import com.unn.user_core.threads.RouterThread;
 import com.unn.user_core.threads.ShutdownHookThread;
 import com.unn.user_core.threads.SocketManagerThread;
+import com.unn.user_core.interfaces.IUimMessage;
 
 /**
  *
@@ -34,7 +34,7 @@ public class UserCore implements UIMI{
     }
  
     @Override
-    public void sendMessage(UIM msg) {
+    public void sendMessage(IUimMessage msg) {
         UCM cmsg = UCM.nm()
                 .setTo(UCM.TID.INTERFACE_THREAD)
                 .setFrom(UCM.TID.USER_INTERFACE)

@@ -5,10 +5,9 @@
 package com.unn.user_core.interfaces;
 
 /**
- * User Interface Message Interface
- * @author STALKER
+ *
+ * @author acer
  */
-public interface UIMI {
-    public void sendMessage(IUimMessage msg);
-    public void startModule();
+public interface IUimMessage {
+    
 }
