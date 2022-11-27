@@ -23,13 +23,13 @@ import org.hibernate.cfg.Configuration;
  */
 public class PIAP_ServerCore {
     
-    
-    public static class ClbkImplementation implements NetPackage.DeserializeCallbackInterface {
+    /*
+    public static class DeserClbkImplementation implements NetPackage.DeserializeCallbackInterface {
         public NP_InfoPacket infoPacket;
         public NP_RegistrationRequestPacket rrp;
         
         
-        public ClbkImplementation() {
+        public DeserClbkImplementation() {
             infoPacket = null;
             rrp = null;
         }
@@ -51,11 +51,20 @@ public class PIAP_ServerCore {
             System.out.println("RX: " + rrp.login + " " + rrp.password);
         }
     }
+    
+    public static class SerClbkImplementation implements NetPackage.SerializeCallbackInterface {
+        @Override
+        public void serializationError(String errStr) {
+            System.out.println(errStr);
+        }
+    }
+    */
 
     public static void main(String[] args) {
+        /*
         Gson gson = new GsonBuilder().create();
-        ClbkImplementation clbk = new ClbkImplementation();
-        NetPackage np = new NetPackage(gson, clbk);
+        DeserClbkImplementation deserClbk = new DeserClbkImplementation();
+        NetPackage np = new NetPackage(gson, deserClbk, new SerClbkImplementation());
         
         NP_InfoPacket np_ip1 = new NP_InfoPacket("info_info");
         NP_InfoPacket np_ip2 = new NP_InfoPacket();
@@ -85,7 +94,7 @@ public class PIAP_ServerCore {
         np.deserialize(s3);
         np.deserialize(s4);
         np.deserialize(s5);
-        
+        */
         
         
         
