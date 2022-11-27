@@ -12,16 +12,27 @@ import com.google.gson.Gson;
  */
 public class NetPackage {
     private final Gson gson;
-    private final NetPackage.DeserializeCallbackInterface clbk;
+    private final NetPackage.DeserializeCallbackInterface deserClbk;
+    private final NetPackage.SerializeCallbackInterface serClbk;
     
-    public NetPackage(Gson gson, NetPackage.DeserializeCallbackInterface clbk) {
+    public NetPackage(Gson gson, 
+            NetPackage.DeserializeCallbackInterface deserClbk,
+            NetPackage.SerializeCallbackInterface serClbk) {
         this.gson = gson;
-        this.clbk = clbk;
+        
+        if (deserClbk == null)
+            this.deserClbk = new DefaultDeserializationCallback();
+        else
+            this.deserClbk = deserClbk;
+        if (serClbk == null)
+            this.serClbk = new DefaultSerializationCallback();
+        else
+            this.serClbk = serClbk;
     }
     
     public String serialize(NetPackage.NetMessageInterface netMsgIfc) {
         if (netMsgIfc == null) {
-            clbk.deserializationError(NetPackage.class, "Serialization of null");
+            serClbk.serializationError("Serialization of null");
             return null;
         }
         return gson.toJson(
@@ -34,7 +45,7 @@ public class NetPackage {
     public void deserialize(String json) {
         NetMessage msg = gson.fromJson(json, NetMessage.class);
         if (msg == null) {
-            clbk.deserializationError(NetMessage.class, "Error deserializing NetMessage: msg = null");
+            deserClbk.deserializationError(NetMessage.class, "Error deserializing NetMessage: msg = null");
             return;
         }
         
@@ -56,67 +67,66 @@ public class NetPackage {
                 sb.append("NULL\n");
             else
                 sb.append(msg.body).append("\n");
-            clbk.deserializationError(NetMessage.class, sb.toString());
-            return;
-        }
-        
-        if (msg.type == NET_MSG_TYPE.INFO) {
-            NP_InfoPacket ip = gson.fromJson(msg.body, NP_InfoPacket.class);
-            if (!NP_InfoPacket.isCorrect(ip)) {
-                clbk.deserializationError(NP_InfoPacket.class, NP_InfoPacket.class.getName() + " deserialization failure");
-                return;
-            }
-            clbk.np_infoPacketAcquired(ip);
+            deserClbk.deserializationError(NetMessage.class, sb.toString());
             return;
         }
         
         switch(msg.type) {
-            /* <Add here more handlers> */
-            case REQUEST -> {
-                switch(msg.cmd) {
-                    case REGISTER -> {
-                        NP_RegistrationRequestPacket rrp = gson.fromJson(msg.body, NP_RegistrationRequestPacket.class);
-                        if (!NP_RegistrationRequestPacket.isCorrect(rrp)) {
-                            clbk.deserializationError(NP_RegistrationRequestPacket.class, NP_RegistrationRequestPacket.class.getName() + " deserialization failure");
-                            return;
-                        }
-                        clbk.np_registrationRequestPacketAcquired(rrp);
-                        return;
-                    }
-                        
-                    default -> {
-                            
-                    }
+            case INFO -> {
+                NP_InfoPacket ip = gson.fromJson(msg.body, NP_InfoPacket.class);
+                if (!NP_InfoPacket.isCorrect(ip)) {
+                    deserClbk.deserializationError(NP_InfoPacket.class, NP_InfoPacket.class.getName() + " deserialization failure");
+                    return;
                 }
-            }  // case REQUEST
-                
-            case RESPONSE -> {
-                switch(msg.cmd) {
-                    
-                    default -> {
-                            
-                    }
-                }
-            }  // case RESPONSE
-            
-            /* </Add here more handlers> */    
-            default -> clbk.deserializationError(NetPackage.class, "Deserialization unknown net message type: " + msg.type.name());
+                deserClbk.np_infoPacketAcquired(ip);
+            }
+            case REQUEST -> requestsDeserialization(msg);
+            case RESPONSE -> responsesDeserialization(msg);
+            default -> deserClbk.deserializationError(NetPackage.class, "Deserialization unknown net message type: " + msg.type.name());
         }
     }
     
-    public /*static*/ enum NET_MSG_TYPE {
+    private void requestsDeserialization(NetMessage msg) {
+        /* <Add here more handlers> */
+        switch(msg.cmd) {
+            case REGISTER -> {
+                NP_RegistrationRequestPacket rrp = gson.fromJson(msg.body, NP_RegistrationRequestPacket.class);
+                if (!NP_RegistrationRequestPacket.isCorrect(rrp)) {
+                    deserClbk.deserializationError(NP_RegistrationRequestPacket.class, NP_RegistrationRequestPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_registrationRequestPacketAcquired(rrp);
+            }
+            
+            default -> {
+            }
+        }
+        /* </Add here more handlers> */
+    }
+    
+    private void responsesDeserialization(NetMessage msg) {
+        /* <Add here more handlers> */
+        switch(msg.cmd) {
+            
+            default -> {
+            }
+        }
+        /* </Add here more handlers> */  
+    }
+    
+    public static enum NET_MSG_TYPE {
         REQUEST,
         RESPONSE,
         INFO
     }
     
-    public /*static*/ interface NetMessageInterface {
+    public static interface NetMessageInterface {
         public NetPackage.NET_MSG_TYPE getMessageType();
         public NetPackage.COMMANDS_LIST getCommandType();
         public String convertToJson(Gson serializer);
     }
     
-    public /*static*/ enum COMMANDS_LIST {
+    public static enum COMMANDS_LIST {
         NONE,
         
         /* <Add here more commands> */
@@ -126,18 +136,27 @@ public class NetPackage {
         /* </Add here more commands> */
     }
     
-    public /*static*/ interface DeserializeCallbackInterface {
+    public static interface DeserializeCallbackInterface {
         void deserializationError(Class<?> errClass, String errorStr);
         
         /* <Add here more deserialization callbacks> */
         void np_infoPacketAcquired(NP_InfoPacket infoPacket);
+        
+        // Add more requests callbacks
         void np_registrationRequestPacketAcquired(NP_RegistrationRequestPacket rrp);
+        
+        
+        // Add more responses callbacks
+        
         
         /* </Add here more deserialization callbacks> */
     }
     
+    public static interface SerializeCallbackInterface {
+        void serializationError(String errStr);
+    }
     
-    private /*static*/ class NetMessage {
+    private static class NetMessage {
         public NetPackage.NET_MSG_TYPE type;
         public NetPackage.COMMANDS_LIST cmd;
         public String body;
@@ -147,5 +166,32 @@ public class NetPackage {
             this.cmd = cmd;
             this.body = body;
         }
+    }
+    
+    private static class DefaultDeserializationCallback implements DeserializeCallbackInterface {
+
+        @Override
+        public void deserializationError(Class<?> errClass, String errorStr) {
+            
+        }
+
+        @Override
+        public void np_infoPacketAcquired(NP_InfoPacket infoPacket) {
+            
+        }
+
+        @Override
+        public void np_registrationRequestPacketAcquired(NP_RegistrationRequestPacket rrp) {
+            
+        }
+    }
+    
+    private static class DefaultSerializationCallback implements SerializeCallbackInterface {
+
+        @Override
+        public void serializationError(String errStr) {
+            
+        }
+        
     }
 }
