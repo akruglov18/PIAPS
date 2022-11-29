@@ -5,6 +5,7 @@
 package com.unn.piap_serverside.threads;
 
 import com.unn.piap_serverside.Log;
+import com.unn.piap_serverside.data_types.UI_ResourseCount;
 import com.unn.piap_serverside.interfaces.SCMI;
 import com.unn.piap_serverside.ui_modules.UIM_SMTS;
 
@@ -39,6 +40,8 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
         routerThread.registerChild(smt);
         
         uIM_SMTS1.setRouter(routerThread);
+        uIM_DBS1.setRouter(routerThread);
+        uIM_NP_IP1.setRouter(routerThread);
         
         
         
@@ -59,7 +62,20 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
         uIM_SMTS1.setStatusLabel(status);
     }
     
+    @Override
+    public void updateDbStatusLabel(String status) {
+        uIM_DBS1.updateStatusLabel(status);
+    }
+
+    @Override
+    public void updateDbResoursesCnt(UI_ResourseCount rc) {
+        uIM_DBS1.updateDbResourses(rc);
+    }
     
+    @Override
+    public void setInfoPacketText(String text) {
+        uIM_NP_IP1.setInfoPacketText(text);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -71,6 +87,8 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
     private void initComponents() {
 
         uIM_SMTS1 = new com.unn.piap_serverside.ui_modules.UIM_SMTS();
+        uIM_DBS1 = new com.unn.piap_serverside.ui_modules.UIM_DBS();
+        uIM_NP_IP1 = new com.unn.piap_serverside.ui_modules.UIM_NP_IP();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -80,15 +98,24 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(uIM_SMTS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(205, Short.MAX_VALUE))
+                .addComponent(uIM_DBS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(uIM_SMTS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(uIM_NP_IP1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(uIM_SMTS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(208, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(uIM_DBS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(uIM_SMTS1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(uIM_NP_IP1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(275, Short.MAX_VALUE))
         );
 
         pack();
@@ -130,6 +157,8 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.unn.piap_serverside.ui_modules.UIM_DBS uIM_DBS1;
+    private com.unn.piap_serverside.ui_modules.UIM_NP_IP uIM_NP_IP1;
     private com.unn.piap_serverside.ui_modules.UIM_SMTS uIM_SMTS1;
     // End of variables declaration//GEN-END:variables
 }
