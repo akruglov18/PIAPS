@@ -31,7 +31,7 @@ public class UIChangerThread extends ThreadBase {
     @Override
     protected boolean handlePersonalMessage(SCM msg) {
         switch(msg.type) {
-            case SMT_START_LISTENING -> {
+            case UIT_START_LISTENING -> {
                 if (msg.body != null && msg.body.getClass().getName().equals(String.class.getName()))
                     uiInterface.setServerSocketStatus((String)msg.body);
                 else
@@ -39,7 +39,7 @@ public class UIChangerThread extends ThreadBase {
                 return true;
             }
                 
-            case SMT_STOP_LISTENING -> { 
+            case UIT_STOP_LISTENING -> { 
                 if (msg.body != null && msg.body.getClass().getName().equals(String.class.getName()))
                     uiInterface.setServerSocketStatus((String)msg.body);
                 else
