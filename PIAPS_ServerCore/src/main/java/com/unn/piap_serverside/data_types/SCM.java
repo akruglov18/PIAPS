@@ -12,12 +12,19 @@ public class SCM {
     public enum TID {
         THREAD_BASE,
         GLOBAL,
+        
         ROUTER_THREAD,
+        
         RESOURCE_MANAGER_THREAD,
+        
         DB_MANAGER_THREAD,
+        
         SHUTDOWN_HOOK_THREAD,
         SOCKET_MANAGER_THREAD,
         SERVER_SOCKET_THREAD,
+        CLIENT_TX_THREAD,
+        CLIENT_RX_THREAD,
+        
         UI_THREAD,
         UI_CHANGER_THREAD
     }
@@ -27,11 +34,28 @@ public class SCM {
         GLOBAL_HANDSHAKE,
         GLOBAL_TERMINATE,
         
-        SMT_SET_PORT,
-        SMT_START_LISTENING,
-        SMT_STOP_LISTENING,
+        UIT_SET_PORT,
+        UIT_START_LISTENING,
+        UIT_STOP_LISTENING,
+        UIT_DB_UPDATE_RESOURSES,
+        UIT_DB_CONNECT,
+        UIT_DB_RESET,
+        UIT_SEND_INFO_PACKET_TO_CLIENTS,
+        
+        TXT_CLIENT_CONNECTION_UNEXPECTED_TERMINATION,
 
-        SCT_ADD_NEW_CLIENT
+        SST_ADD_NEW_CLIENT,
+        
+        RXT_UNEXPECTED_TERMINATION,
+        RXT_DESERIALIZATION_ERROR,
+        RXT_INFO_PACKET_ACQUIRED,
+        RXT_RECEIVER_WRONG_CMD_PACKET_TYPE,
+        RXT_REGISTRATION_REQUEST_ACQUIRED,
+        RXT_AUTHORIZATION_REQUEST_ACQUIRED,
+        RXT_RESOURSE_GET_ACQUIRED,
+        
+        DBT_UPDATE_DB_STATE,
+        DBT_SEND_NP_RESPONSE
     }
     
     public SCM.TID from;
