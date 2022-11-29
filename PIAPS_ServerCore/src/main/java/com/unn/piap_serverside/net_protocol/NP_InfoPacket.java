@@ -1,29 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.unn.piap_serverside.net_protocol;
 
 import com.google.gson.Gson;
+import lombok.AllArgsConstructor;
 
-/**
- *
- * @author STALKER
- */
+@AllArgsConstructor
 public class NP_InfoPacket implements NetPackage.NetMessageInterface {
     public String info;
     
-    public NP_InfoPacket() {
-        this.info = null;
-    }
-    
-    public NP_InfoPacket(String info) {
-        this.info = info;
-    }
-    
-    public NP_InfoPacket(NP_InfoPacket np_ip) {
-        this.info = np_ip.info;
-    }
     
     public static boolean isCorrect(NP_InfoPacket infoPacket) {
         if (infoPacket == null)
