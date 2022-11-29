@@ -5,16 +5,16 @@
 package com.unn.command_line_interface;
 
 import com.unn.user_core.Log;
-import com.unn.user_core.data_types.UIM;
 import com.unn.user_core.interfaces.UIMI;
 import java.util.ArrayDeque;
+import com.unn.user_core.interfaces.IUimMessage;
 
 /**
  *
  * @author STALKER
  */
 public class CLOutputThread extends Thread implements UIMI {
-    protected final ArrayDeque<UIM> messageQueue = new ArrayDeque<>();
+    protected final ArrayDeque<IUimMessage> messageQueue = new ArrayDeque<>();
     protected boolean running = true;
     
     
@@ -25,7 +25,7 @@ public class CLOutputThread extends Thread implements UIMI {
     @Override
     public void run() {
         Log.info("CLOutputThread started");
-        UIM inputMessage;
+        IUimMessage inputMessage;
         while(running) {
             synchronized(messageQueue) {
                 if(messageQueue.isEmpty()) {
@@ -41,14 +41,12 @@ public class CLOutputThread extends Thread implements UIMI {
         }
     }
     
-    private void handleMessage(UIM msg) {
+    private void handleMessage(IUimMessage msg) {
         
-    }
-    
-    
+    }    
 
     @Override
-    public void sendMessage(UIM msg) {
+    public void sendMessage(IUimMessage msg) {
         synchronized (messageQueue) {
             messageQueue.addFirst(msg);
             messageQueue.notify();

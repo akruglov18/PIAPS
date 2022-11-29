@@ -5,9 +5,11 @@
 package com.unn.user_core.data_types;
 
 /**
- * User Interface Message
- * @author STALKER
+ *
+ * @author acer
  */
-public class UIM {
-    
+
+public class NetPackage {
+    public NetPackageType type;
+    public String body;
 }
