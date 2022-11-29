@@ -28,7 +28,7 @@ public class ShutdownHookThread extends Thread {
                 .setType(SCM.TYPE.GLOBAL_TERMINATE);
         router.sendMessage(msg);
         try {
-            Thread.sleep(500);
+            Thread.sleep(2000);
         } catch(InterruptedException ex) {
             Log.error(SCM.TID.SHUTDOWN_HOOK_THREAD.name() + " got exception: " + ex.toString());
         }

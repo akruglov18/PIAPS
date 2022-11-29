@@ -4,6 +4,7 @@
  */
 package com.unn.piap_serverside.database;
 
+import com.unn.piap_serverside.net_protocol.DB_ResourseRecord;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,4 +24,10 @@ public class ResourceTableRecord {
     private String type;
     private String name;
     private int count;
+    
+    public ResourceTableRecord(DB_ResourseRecord rr) {
+        type = rr.type.name();
+        name = rr.name;
+        count = rr.count;
+    }
 }

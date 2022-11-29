@@ -1,15 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.unn.piap_serverside.net_protocol;
 
 import com.google.gson.Gson;
 
-/**
- *
- * @author STALKER
- */
 public class NetPackage {
     private final Gson gson;
     private final NetPackage.DeserializeCallbackInterface deserClbk;
@@ -80,38 +72,45 @@ public class NetPackage {
                 }
                 deserClbk.np_infoPacketAcquired(ip);
             }
-            case REQUEST -> requestsDeserialization(msg);
-            case RESPONSE -> responsesDeserialization(msg);
+            case REQUEST, RESPONSE -> cmdDeserialization(msg);
             default -> deserClbk.deserializationError(NetPackage.class, "Deserialization unknown net message type: " + msg.type.name());
         }
     }
     
-    private void requestsDeserialization(NetMessage msg) {
+    private void cmdDeserialization(NetMessage msg) {
         /* <Add here more handlers> */
         switch(msg.cmd) {
             case REGISTER -> {
-                NP_RegistrationRequestPacket rrp = gson.fromJson(msg.body, NP_RegistrationRequestPacket.class);
-                if (!NP_RegistrationRequestPacket.isCorrect(rrp)) {
-                    deserClbk.deserializationError(NP_RegistrationRequestPacket.class, NP_RegistrationRequestPacket.class.getName() + " deserialization failure");
+                NP_RegistrationPacket rrp = gson.fromJson(msg.body, NP_RegistrationPacket.class);
+                if (!NP_RegistrationPacket.isCorrect(rrp)) {
+                    deserClbk.deserializationError(NP_RegistrationPacket.class, NP_RegistrationPacket.class.getName() + " deserialization failure");
                     return;
                 }
-                deserClbk.np_registrationRequestPacketAcquired(rrp);
+                deserClbk.np_registrationPacketAcquired(rrp);
+            }
+            
+            case AUTHORIZE -> {
+                NP_AuthorizationPacket ap = gson.fromJson(msg.body, NP_AuthorizationPacket.class);
+                if (!NP_AuthorizationPacket.isCorrect(ap)) {
+                    deserClbk.deserializationError(NP_AuthorizationPacket.class, NP_AuthorizationPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_authorizationPacketAcquired(ap);
+            }
+            
+            case GET_RESOURSES -> {
+                NP_ResoursePacket rp = gson.fromJson(msg.body, NP_ResoursePacket.class);
+                if (!NP_ResoursePacket.isCorrect(rp)) {
+                    deserClbk.deserializationError(NP_ResoursePacket.class, NP_ResoursePacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_resoursePacketAcquired(rp);
             }
             
             default -> {
             }
         }
         /* </Add here more handlers> */
-    }
-    
-    private void responsesDeserialization(NetMessage msg) {
-        /* <Add here more handlers> */
-        switch(msg.cmd) {
-            
-            default -> {
-            }
-        }
-        /* </Add here more handlers> */  
     }
     
     public static enum NET_MSG_TYPE {
@@ -131,23 +130,20 @@ public class NetPackage {
         
         /* <Add here more commands> */
         REGISTER,
-        AUTHORIZE
+        AUTHORIZE,
+        GET_RESOURSES
         
         /* </Add here more commands> */
     }
     
     public static interface DeserializeCallbackInterface {
         void deserializationError(Class<?> errClass, String errorStr);
-        
-        /* <Add here more deserialization callbacks> */
         void np_infoPacketAcquired(NP_InfoPacket infoPacket);
         
-        // Add more requests callbacks
-        void np_registrationRequestPacketAcquired(NP_RegistrationRequestPacket rrp);
-        
-        
-        // Add more responses callbacks
-        
+        /* <Add here more deserialization callbacks> */
+        void np_registrationPacketAcquired(NP_RegistrationPacket rrp);
+        void np_authorizationPacketAcquired(NP_AuthorizationPacket ap);
+        void np_resoursePacketAcquired(NP_ResoursePacket rp);
         
         /* </Add here more deserialization callbacks> */
     }
@@ -181,7 +177,17 @@ public class NetPackage {
         }
 
         @Override
-        public void np_registrationRequestPacketAcquired(NP_RegistrationRequestPacket rrp) {
+        public void np_registrationPacketAcquired(NP_RegistrationPacket rrp) {
+            
+        }
+
+        @Override
+        public void np_authorizationPacketAcquired(NP_AuthorizationPacket ap) {
+            
+        }
+
+        @Override
+        public void np_resoursePacketAcquired(NP_ResoursePacket rp) {
             
         }
     }

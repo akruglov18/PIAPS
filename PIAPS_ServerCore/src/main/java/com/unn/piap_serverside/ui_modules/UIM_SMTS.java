@@ -130,7 +130,7 @@ public class UIM_SMTS extends javax.swing.JPanel {
         SCM msg = SCM.nm()
                 .setFrom(SCM.TID.UI_THREAD)
                 .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
-                .setType(SCM.TYPE.SMT_SET_PORT)
+                .setType(SCM.TYPE.UIT_SET_PORT)
                 .setBody(port);
         router.sendMessage(msg);
     }//GEN-LAST:event_setPortBttnActionPerformed
@@ -139,7 +139,7 @@ public class UIM_SMTS extends javax.swing.JPanel {
         SCM msg = SCM.nm()
                 .setFrom(SCM.TID.UI_THREAD)
                 .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
-                .setType(SCM.TYPE.SMT_STOP_LISTENING)
+                .setType(SCM.TYPE.UIT_STOP_LISTENING)
                 .setBody(null);
         router.sendMessage(msg);
     }//GEN-LAST:event_stopListeningBttnActionPerformed
@@ -148,7 +148,7 @@ public class UIM_SMTS extends javax.swing.JPanel {
         SCM msg = SCM.nm()
                 .setFrom(SCM.TID.UI_THREAD)
                 .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
-                .setType(SCM.TYPE.SMT_START_LISTENING)
+                .setType(SCM.TYPE.UIT_START_LISTENING)
                 .setBody(null);
         router.sendMessage(msg);
     }//GEN-LAST:event_startListeningBttnActionPerformed
