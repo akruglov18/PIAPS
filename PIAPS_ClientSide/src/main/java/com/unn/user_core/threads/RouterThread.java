@@ -24,7 +24,6 @@ public class RouterThread extends ThreadBase{
         childrenModules.add(child);
     }
     
-    
     @Override
     protected void handleMessage(UCM msg) {
         // handling personal messages
