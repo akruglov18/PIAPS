@@ -13,13 +13,18 @@ import com.unn.piap_serverside.database.RequestsTableRecord;
 import com.unn.piap_serverside.database.ResourceTableRecord;
 import com.unn.piap_serverside.database.UsersTableRecord;
 import com.unn.piap_serverside.interfaces.SCMI;
+import com.unn.piap_serverside.net_protocol.DB_MsgRecord;
 import com.unn.piap_serverside.net_protocol.DB_ResourseRecord;
 import com.unn.piap_serverside.net_protocol.NP_AuthorizationPacket;
+import com.unn.piap_serverside.net_protocol.NP_GetMsgPacket;
 import com.unn.piap_serverside.net_protocol.NP_RegistrationPacket;
 import com.unn.piap_serverside.net_protocol.NP_ResoursePacket;
+import com.unn.piap_serverside.net_protocol.NP_SendMsgPacket;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import org.hibernate.HibernateException;
@@ -109,13 +114,6 @@ public class DBManagerThread extends ThreadBase {
                 } finally {
                     router.sendMessage(nmsg);
                 }
-                
-                /*
-                String hql = "FROM " + className + " WHERE userCreate like ':userName'";
-                Query query = session.createQuery(hql);
-                query.setParameter("userName", userName);
-                List<Node> result = query.list();
-                */
                 return true;
             }
             
@@ -142,10 +140,12 @@ public class DBManagerThread extends ThreadBase {
                         case 0 -> new_ap.respType = NP_AuthorizationPacket.RESPONSE_TYPE.ERROR_USER_NOT_FOUND;
                         case 1 -> {
                             UsersTableRecord user = list.get(0);
-                            if (user.getPassword().equals(ap.password))
+                            if (user.getPassword().equals(ap.password)) {
                                 new_ap.respType = NP_AuthorizationPacket.RESPONSE_TYPE.AUTHORIZED;
-                            else
+                                new_ap.login = ap.login;
+                            } else {
                                 new_ap.respType = NP_AuthorizationPacket.RESPONSE_TYPE.ERROR_WRONG_PASSWORD;
+                            }
                         }
                         default -> new_ap.respType = NP_AuthorizationPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
                     }
@@ -191,6 +191,173 @@ public class DBManagerThread extends ThreadBase {
                 } catch (Exception ex) {
                     Log.error("IMPOSSIBLE DBMT EX: " + ex.toString());
                     new_rp.respType = NP_ResoursePacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                } finally {
+                    router.sendMessage(nmsg);
+                }
+                return true;
+            }
+            
+            case RXT_SEND_MSG_ACQUIRED -> {
+                if (!isConnectedToDB)
+                    return true;
+                
+                NetPackageWrapper npw = (NetPackageWrapper) msg.body;
+                NP_SendMsgPacket smsgp = (NP_SendMsgPacket) npw.body;
+                
+                NP_SendMsgPacket new_smsgp = new NP_SendMsgPacket(false, null, null);
+                NetPackageWrapper new_npw = new NetPackageWrapper(npw.connUUID, new_smsgp);
+                
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.DB_MANAGER_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.DBT_SEND_NP_RESPONSE)
+                        .setBody(new_npw);
+                
+                try {
+                    String hql1 = String.format("FROM %s WHERE login = '%s'", UsersTableRecord.class.getName(), smsgp.msg.loginFrom);
+                    List<UsersTableRecord> loginFrom = session.createQuery(hql1).getResultList();
+                    switch(loginFrom.size()) {
+                        case 0 -> {
+                            new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_LOGIN_FROM_NOT_FOUND;
+                            router.sendMessage(nmsg);
+                            return true;
+                        }
+                        case 1 -> {
+                            new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_LOGIN_TO_NOT_FOUND;
+                        }
+                        default -> {
+                            new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                            router.sendMessage(nmsg);
+                            return true;
+                        }
+                    }
+                    
+                    String hql2 = String.format("FROM %s WHERE login = '%s'", UsersTableRecord.class.getName(), smsgp.msg.loginTo);
+                    List<UsersTableRecord> loginTo = session.createQuery(hql2).getResultList();
+                    switch(loginTo.size()) {
+                        case 0 -> {
+                            new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_LOGIN_TO_NOT_FOUND;
+                            router.sendMessage(nmsg);
+                            return true;
+                        }
+                        case 1 -> {
+                            new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.OK;
+                        }
+                        default -> {
+                            new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                            router.sendMessage(nmsg);
+                            return true;
+                        }
+                    }
+                    
+                    UsersTableRecord userFrom = loginFrom.get(0);
+                    UsersTableRecord userTo = loginTo.get(0);
+                    
+                    MsgTableRecord tr = new MsgTableRecord(
+                            UUID.randomUUID().toString(),
+                            userFrom.getUserId(),
+                            userTo.getUserId(),
+                            new Timestamp(System.currentTimeMillis()).toString(),
+                            smsgp.msg.theme,
+                            smsgp.msg.body);
+                    
+                    session.beginTransaction();
+                    session.save(tr);
+                    session.getTransaction().commit();
+                    session.clear();
+                    new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.OK;
+                    
+                    
+                } catch (HibernateException ex) {
+                    Log.error("HIBERNATE EX: " + ex.toString());
+                    new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                } catch (IllegalArgumentException ex) {
+                    Log.error("ILLEGAL ARGS EX: " + ex.toString());
+                    new_smsgp.respType = NP_SendMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                } finally {
+                    router.sendMessage(nmsg);
+                }
+                return true;
+            }
+            
+            case RXT_GET_MSG_ACQUIRED -> {
+                if (!isConnectedToDB)
+                    return true;
+                
+                NetPackageWrapper npw = (NetPackageWrapper) msg.body;
+                NP_GetMsgPacket gmsgp = (NP_GetMsgPacket) npw.body;
+                
+                NP_GetMsgPacket new_gmsgp = new NP_GetMsgPacket(false, null,
+                        NP_GetMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR, null);
+                NetPackageWrapper new_npw = new NetPackageWrapper(npw.connUUID, new_gmsgp);
+                
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.DB_MANAGER_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.DBT_SEND_NP_RESPONSE)
+                        .setBody(new_npw);
+                
+                try {
+                    String hql1 = String.format("FROM %s WHERE login = '%s'", UsersTableRecord.class.getName(), gmsgp.login);
+                    List<UsersTableRecord> login = session.createQuery(hql1).getResultList();
+                    switch(login.size()) {
+                        case 0 -> {
+                            new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.ERROR_USER_LOGIN_NOT_FOUND;
+                            router.sendMessage(nmsg);
+                            return true;
+                        }
+                        
+                        case 1 -> {
+                            new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.OK;
+                        }
+                        
+                        default -> {
+                            new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                            router.sendMessage(nmsg);
+                            return true;
+                        }
+                    }
+                    
+                    String userUUID = login.get(0).getUserId();
+                    String hql2 = String.format("FROM %s WHERE useridto = '%s'", MsgTableRecord.class.getName(), userUUID);
+                    List<MsgTableRecord> dbListRecords = session.createQuery(hql2).getResultList();
+                    
+                    ArrayList<DB_MsgRecord> npListRecord = new ArrayList<>();
+                    for (MsgTableRecord msgRec : dbListRecords) {
+                        Timestamp ts;
+                        try {
+                            ts = Timestamp.valueOf(msgRec.getStrTimeStamp());
+                        } catch (IllegalArgumentException ex) {
+                            ts = null;
+                        }
+                        String hql3 = String.format("FROM %s WHERE userid = '%s'", UsersTableRecord.class.getName(), msgRec.getUserIdFrom());
+                        List<UsersTableRecord> loginFrom = session.createQuery(hql3).getResultList();
+                        switch(loginFrom.size()) {
+                            case 0 -> {
+                                new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.ERROR_SENDER_LOGIN_NOT_FOUND;
+                                router.sendMessage(nmsg);
+                                return true;
+                            }
+                            case 1 -> {
+                                new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.OK;
+                            }
+                            default -> {
+                                new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
+                                router.sendMessage(nmsg);
+                                return true;
+                            }
+                        }
+                        
+                        DB_MsgRecord new_dbmr = new DB_MsgRecord(loginFrom.get(0).getLogin(),
+                                gmsgp.login, ts, msgRec.getTheme(), msgRec.getBody());
+                        npListRecord.add(new_dbmr);
+                    }
+                    
+                    new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.OK;
+                    new_gmsgp.records = npListRecord;
+                } catch (HibernateException ex) {
+                    Log.error("HIBERNATE EX: " + ex.toString());
+                    new_gmsgp.respType = NP_GetMsgPacket.RESPONSE_TYPE.ERROR_INTERNAL_SERVER_ERROR;
                 } finally {
                     router.sendMessage(nmsg);
                 }

@@ -10,7 +10,9 @@ import com.unn.piap_serverside.net_protocol.NP_RegistrationPacket;
 import com.unn.piap_serverside.net_protocol.NetPackage;
 import com.unn.piap_serverside.data_types.NetPackageWrapper;
 import com.unn.piap_serverside.net_protocol.NP_AuthorizationPacket;
+import com.unn.piap_serverside.net_protocol.NP_GetMsgPacket;
 import com.unn.piap_serverside.net_protocol.NP_ResoursePacket;
+import com.unn.piap_serverside.net_protocol.NP_SendMsgPacket;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,6 +33,7 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
     private boolean serSuccess;
     private boolean isAuth = false;
     private final int portNum;
+    private String login = null;
             
     
     // DO NOT CALL .start() if exception occured. Just clear created object
@@ -86,6 +89,8 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
                     } else {
                         if (ap.respType == NP_AuthorizationPacket.RESPONSE_TYPE.AUTHORIZED) {
                             isAuth = true;
+                            login = ap.login;
+                            Log.debug("LOGIN: " + login);
                         } else {
                             isAuth = false;
                         }
@@ -165,6 +170,54 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
                         .setFrom(SCM.TID.CLIENT_TX_THREAD)
                         .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
                         .setType(SCM.TYPE.RXT_RESOURSE_GET_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_SEND_MSG_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_SendMsgPacket smsgp = new NP_SendMsgPacket(false, null, NP_SendMsgPacket.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED);
+                    txNpToClient(smsgp);
+                    return true;
+                }
+                
+                NP_SendMsgPacket smsp = (NP_SendMsgPacket) msg.body;
+                if (!smsp.msg.loginFrom.equals(login)) {
+                    NP_SendMsgPacket smsgp = new NP_SendMsgPacket(false, null, NP_SendMsgPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN_FROM);
+                    txNpToClient(smsgp);
+                    return true;
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_SEND_MSG_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_GET_MSG_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_GetMsgPacket gmsgp = new NP_GetMsgPacket(false, null, NP_GetMsgPacket.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED, null);
+                    txNpToClient(gmsgp);
+                    return true;
+                }
+                
+                NP_GetMsgPacket gmp = (NP_GetMsgPacket) msg.body;
+                if (!gmp.login.equals(login)) {
+                    NP_GetMsgPacket gmsgp = new NP_GetMsgPacket(false, null, NP_GetMsgPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN, null);
+                    txNpToClient(gmsgp);
+                    return true;
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_GET_MSG_ACQUIRED)
                         .setBody(npw);
                 scktMgrThrd.sendMessage(nmsg);
                 return true;
@@ -377,6 +430,38 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
                     .setBody(rp);
             } else {
                 String errStr = "Server received get_resourse response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (smsgp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_SEND_MSG_ACQUIRED)
+                        .setBody(smsgp);
+            } else {
+                String errStr = "Server received send_message response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (gmsgp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_GET_MSG_ACQUIRED)
+                        .setBody(gmsgp);
+            } else {
+                String errStr = "Server received get_message response packet which is forbidden";
                 msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
                         .setBody(errStr);
             }

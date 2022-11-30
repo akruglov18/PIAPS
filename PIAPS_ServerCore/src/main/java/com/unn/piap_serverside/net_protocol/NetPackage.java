@@ -107,6 +107,24 @@ public class NetPackage {
                 deserClbk.np_resoursePacketAcquired(rp);
             }
             
+            case SEND_MESSAGE -> {
+                NP_SendMsgPacket smsgp = gson.fromJson(msg.body, NP_SendMsgPacket.class);
+                if (!NP_SendMsgPacket.isCorrect(smsgp)) {
+                    deserClbk.deserializationError(NP_SendMsgPacket.class, NP_SendMsgPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_sendMsgPacketAcquired(smsgp);
+            }
+            
+            case GET_MESSAGES -> {
+                NP_GetMsgPacket gmsgp = gson.fromJson(msg.body, NP_GetMsgPacket.class);
+                if (!NP_GetMsgPacket.isCorrect(gmsgp)) {
+                    deserClbk.deserializationError(NP_GetMsgPacket.class, NP_GetMsgPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_getMsgPacketAcquired(gmsgp);
+            }
+            
             default -> {
             }
         }
@@ -131,7 +149,9 @@ public class NetPackage {
         /* <Add here more commands> */
         REGISTER,
         AUTHORIZE,
-        GET_RESOURSES
+        GET_RESOURSES,
+        SEND_MESSAGE,
+        GET_MESSAGES
         
         /* </Add here more commands> */
     }
@@ -144,6 +164,8 @@ public class NetPackage {
         void np_registrationPacketAcquired(NP_RegistrationPacket rrp);
         void np_authorizationPacketAcquired(NP_AuthorizationPacket ap);
         void np_resoursePacketAcquired(NP_ResoursePacket rp);
+        void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp);
+        void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp);
         
         /* </Add here more deserialization callbacks> */
     }
@@ -188,6 +210,16 @@ public class NetPackage {
 
         @Override
         public void np_resoursePacketAcquired(NP_ResoursePacket rp) {
+            
+        }
+
+        @Override
+        public void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp) {
+            
+        }
+
+        @Override
+        public void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp) {
             
         }
     }
