@@ -125,6 +125,33 @@ public class NetPackage {
                 deserClbk.np_getMsgPacketAcquired(gmsgp);
             }
             
+            case CREATE_REQUEST -> {
+                NP_CreateRequestPacket crp = gson.fromJson(msg.body, NP_CreateRequestPacket.class);
+                if (!NP_CreateRequestPacket.isCorrect(crp)) {
+                    deserClbk.deserializationError(NP_CreateRequestPacket.class, NP_CreateRequestPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_createRequestPacketAcquired(crp);
+            }
+            
+            case GET_SCHEDULE -> {
+                NP_GetSchedulePacket gsp = gson.fromJson(msg.body, NP_GetSchedulePacket.class);
+                if (!NP_GetSchedulePacket.isCorrect(gsp)) {
+                    deserClbk.deserializationError(NP_GetSchedulePacket.class, NP_GetSchedulePacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_getSchedulePacketAcquired(gsp);
+            }
+            
+            case CHANGE_REQ_STATUS -> {
+                NP_ChangeRequestStatus crs = gson.fromJson(msg.body, NP_ChangeRequestStatus.class);
+                if (!NP_ChangeRequestStatus.isCorrect(crs)) {
+                    deserClbk.deserializationError(NP_ChangeRequestStatus.class, NP_ChangeRequestStatus.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_changeReqStatusPacketAcquired(crs);
+            }
+            
             default -> {
             }
         }
@@ -151,7 +178,10 @@ public class NetPackage {
         AUTHORIZE,
         GET_RESOURSES,
         SEND_MESSAGE,
-        GET_MESSAGES
+        GET_MESSAGES,
+        CREATE_REQUEST,
+        GET_SCHEDULE,
+        CHANGE_REQ_STATUS
         
         /* </Add here more commands> */
     }
@@ -166,6 +196,9 @@ public class NetPackage {
         void np_resoursePacketAcquired(NP_ResoursePacket rp);
         void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp);
         void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp);
+        void np_createRequestPacketAcquired(NP_CreateRequestPacket crp);
+        void np_getSchedulePacketAcquired(NP_GetSchedulePacket gsp);
+        void np_changeReqStatusPacketAcquired(NP_ChangeRequestStatus crp);
         
         /* </Add here more deserialization callbacks> */
     }
@@ -220,6 +253,21 @@ public class NetPackage {
 
         @Override
         public void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp) {
+            
+        }
+
+        @Override
+        public void np_createRequestPacketAcquired(NP_CreateRequestPacket crp) {
+            
+        }
+
+        @Override
+        public void np_getSchedulePacketAcquired(NP_GetSchedulePacket gsp) {
+            
+        }
+
+        @Override
+        public void np_changeReqStatusPacketAcquired(NP_ChangeRequestStatus crp) {
             
         }
     }

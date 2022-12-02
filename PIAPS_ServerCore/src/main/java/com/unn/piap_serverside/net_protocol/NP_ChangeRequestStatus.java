@@ -12,29 +12,27 @@ import lombok.AllArgsConstructor;
  * @author STALKER
  */
 @AllArgsConstructor
-public class NP_SendMsgPacket implements NetPackage.NetMessageInterface {
+public class NP_ChangeRequestStatus implements NetPackage.NetMessageInterface {
     public boolean isRequest;
     
     // REQUEST
-    public DB_MsgRecord msg;
+    public String requestUUID;
+    public DB_RequestRecord.REQ_STATUS newStatus;
     
     // RESPONSE
-    public NP_SendMsgPacket.RESPONSE_TYPE respType;
+    public NP_ChangeRequestStatus.RESPONSE_TYPE respType;
     
     
-    public static boolean isCorrect(NP_SendMsgPacket msgp) {
-        if (msgp == null)
+    public static boolean isCorrect(NP_ChangeRequestStatus crs) {
+        if (crs == null)
             return false;
-        if (msgp.isRequest) {
-            if (msgp.msg == null)
+        if (crs.isRequest) {
+            if (crs.requestUUID == null)
                 return false;
-            if (msgp.msg.loginFrom == null ||
-                msgp.msg.loginTo == null ||
-                msgp.msg.theme == null ||
-                msgp.msg.body == null)
+            if (crs.newStatus == null)
                 return false;
         } else {
-            if (msgp.respType == null)
+            if (crs.respType == null)
                 return false;
         }
         return true;
@@ -44,9 +42,7 @@ public class NP_SendMsgPacket implements NetPackage.NetMessageInterface {
         OK,
         ERROR_INTERNAL_SERVER_ERROR,
         ERROR_NOT_AUTHORIZED,
-        ERROR_LOGIN_FROM_NOT_FOUND,
-        ERROR_LOGIN_TO_NOT_FOUND,
-        ERROR_WRONG_LOGIN_FROM,
+        ERROR_REQUEST_NOT_FOUND,
         ERROR_ACCESS_DENIED
     }
     
@@ -60,7 +56,7 @@ public class NP_SendMsgPacket implements NetPackage.NetMessageInterface {
 
     @Override
     public NetPackage.COMMANDS_LIST getCommandType() {
-        return NetPackage.COMMANDS_LIST.SEND_MESSAGE;
+        return NetPackage.COMMANDS_LIST.CHANGE_REQ_STATUS;
     }
 
     @Override

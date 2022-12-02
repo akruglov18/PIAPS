@@ -12,42 +12,42 @@ import lombok.AllArgsConstructor;
  * @author STALKER
  */
 @AllArgsConstructor
-public class NP_SendMsgPacket implements NetPackage.NetMessageInterface {
+public class NP_CreateRequestPacket implements NetPackage.NetMessageInterface {
     public boolean isRequest;
     
     // REQUEST
-    public DB_MsgRecord msg;
+    public DB_RequestRecord rr;
     
     // RESPONSE
-    public NP_SendMsgPacket.RESPONSE_TYPE respType;
+    public NP_CreateRequestPacket.RESPONSE_TYPE respType;
+    public DB_RequestRecord.REQ_STATUS requestStatus;
     
     
-    public static boolean isCorrect(NP_SendMsgPacket msgp) {
-        if (msgp == null)
+    public static boolean isCorrect(NP_CreateRequestPacket crp) {
+        if (crp == null)
             return false;
-        if (msgp.isRequest) {
-            if (msgp.msg == null)
+        if (crp.isRequest) {
+            // FOR REQUEST ONLY reqUUID ANS status CAN BE null
+            if (crp.rr == null)
                 return false;
-            if (msgp.msg.loginFrom == null ||
-                msgp.msg.loginTo == null ||
-                msgp.msg.theme == null ||
-                msgp.msg.body == null)
+            if (crp.rr.login == null)
                 return false;
         } else {
-            if (msgp.respType == null)
+            if (crp.respType == null)
+                return false;
+            if (crp.respType == RESPONSE_TYPE.OK && crp.requestStatus == null)
                 return false;
         }
         return true;
     }
-    
+
     public static enum RESPONSE_TYPE {
         OK,
         ERROR_INTERNAL_SERVER_ERROR,
         ERROR_NOT_AUTHORIZED,
-        ERROR_LOGIN_FROM_NOT_FOUND,
-        ERROR_LOGIN_TO_NOT_FOUND,
-        ERROR_WRONG_LOGIN_FROM,
-        ERROR_ACCESS_DENIED
+        ERROR_USER_LOGIN_NOT_FOUND,
+        ERROR_REQUEST_UUID_NOT_FOUND,
+        ERROR_WRONG_LOGIN
     }
     
     @Override
@@ -60,7 +60,7 @@ public class NP_SendMsgPacket implements NetPackage.NetMessageInterface {
 
     @Override
     public NetPackage.COMMANDS_LIST getCommandType() {
-        return NetPackage.COMMANDS_LIST.SEND_MESSAGE;
+        return NetPackage.COMMANDS_LIST.CREATE_REQUEST;
     }
 
     @Override
