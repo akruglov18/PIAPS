@@ -32,23 +32,37 @@ public class UimParser
             return;
         }
         
-        if (message.getClass().getName().equals(AvailableResourcesMsg.class.getName()))
+        if (message.getClass().getName().equals(ChangeRequestStatusMsg.class.getName()))
         {
-            AvailableResourcesMsg msg = (AvailableResourcesMsg)message;
+            ChangeRequestStatusMsg msg = (ChangeRequestStatusMsg)message;
             processor.handleMessage(msg);
             return;
         }
         
-        if (message.getClass().getName().equals(BrowseNotificationsMsg.class.getName()))
+        if (message.getClass().getName().equals(CreateRequestMsg.class.getName()))
         {
-            BrowseNotificationsMsg msg = (BrowseNotificationsMsg)message;
+            CreateRequestMsg msg = (CreateRequestMsg)message;
             processor.handleMessage(msg);
             return;
         }
         
-        if (message.getClass().getName().equals(EditResourceMsg.class.getName()))
+        if (message.getClass().getName().equals(GetMessageMsg.class.getName()))
         {
-            EditResourceMsg msg = (EditResourceMsg)message;
+            GetMessageMsg msg = (GetMessageMsg)message;
+            processor.handleMessage(msg);
+            return;
+        }
+        
+        if (message.getClass().getName().equals(GetScheduleMsg.class.getName()))
+        {
+            GetScheduleMsg msg = (GetScheduleMsg)message;
+            processor.handleMessage(msg);
+            return;
+        }
+        
+        if (message.getClass().getName().equals(InfoMsg.class.getName()))
+        {
+            InfoMsg msg = (InfoMsg)message;
             processor.handleMessage(msg);
             return;
         }
@@ -60,16 +74,16 @@ public class UimParser
             return;
         }
         
-        if (message.getClass().getName().equals(RequestsListMsg.class.getName()))
+        if (message.getClass().getName().equals(ResourceMsg.class.getName()))
         {
-            RequestsListMsg msg = (RequestsListMsg)message;
+            ResourceMsg msg = (ResourceMsg)message;
             processor.handleMessage(msg);
             return;
         }
-        
-        if (message.getClass().getName().equals(ScheduleMsg.class.getName()))
+
+        if (message.getClass().getName().equals(SendMessageMsg.class.getName()))
         {
-            ScheduleMsg msg = (ScheduleMsg)message;
+            SendMessageMsg msg = (SendMessageMsg)message;
             processor.handleMessage(msg);
             return;
         }

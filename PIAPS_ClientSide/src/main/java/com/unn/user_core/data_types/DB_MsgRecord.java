@@ -4,12 +4,18 @@
  */
 package com.unn.user_core.data_types;
 
+import java.sql.Timestamp;
+import lombok.AllArgsConstructor;
+
 /**
  *
  * @author acer
  */
-
-public class NetPackage {
-    public NetPackageType type;
+@AllArgsConstructor
+public class DB_MsgRecord {
+    public String loginFrom;
+    public String loginTo;
+    public Timestamp timestamp;  // null for request
+    public String theme;
     public String body;
 }

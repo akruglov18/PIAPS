@@ -23,12 +23,11 @@ public class SocketManagerThread extends ThreadBase {
     private final TxThread txThread;
     private final RxThread rxThread;
     private Socket socket;
-    int port = 3124;
     InetAddress ip;
     protected final ArrayDeque<String> rxMessageQueue;
     UimParser uimParser;
     
-    public SocketManagerThread(UCMI router) {
+    public SocketManagerThread(UCMI router, int port) {
         super(UCM.TID.SOCKET_MANAGER_THREAD);
         this.router = router;
         this.rxMessageQueue = new ArrayDeque<>();
@@ -70,7 +69,7 @@ public class SocketManagerThread extends ThreadBase {
             }
             if (netMessage != null)
             {
-                handleNetMessage(null);
+                handleNetMessage(netMessage);
                 netMessage = null;
             }
         }

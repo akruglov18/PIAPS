@@ -12,10 +12,12 @@ import com.unn.user_core.data_types.*;
  */
 public interface IUimMessageProcessor {
     public void handleMessage(AuthorizationMsg msg);
-    public void handleMessage(AvailableResourcesMsg msg);
-    public void handleMessage(BrowseNotificationsMsg msg);
-    public void handleMessage(EditResourceMsg msg);
+    public void handleMessage(ChangeRequestStatusMsg msg);
+    public void handleMessage(CreateRequestMsg msg);
+    public void handleMessage(GetMessageMsg msg);
+    public void handleMessage(GetScheduleMsg msg);
+    public void handleMessage(InfoMsg msg);
     public void handleMessage(RegistrationMsg msg);
-    public void handleMessage(RequestsListMsg msg);
-    public void handleMessage(ScheduleMsg msg);
+    public void handleMessage(ResourceMsg msg);
+    public void handleMessage(SendMessageMsg msg);
 }

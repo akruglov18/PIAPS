@@ -29,7 +29,7 @@ public class UserCore implements UIMI{
         
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(routerThread));
         
-        socketManagerThread = new SocketManagerThread(routerThread);
+        socketManagerThread = new SocketManagerThread(routerThread, 3124);
         routerThread.registerChild(socketManagerThread);
     }
  

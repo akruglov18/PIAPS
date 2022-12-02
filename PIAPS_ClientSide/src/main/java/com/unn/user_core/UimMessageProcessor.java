@@ -4,13 +4,7 @@
  */
 package com.unn.user_core;
 
-import com.unn.user_core.data_types.AuthorizationMsg;
-import com.unn.user_core.data_types.AvailableResourcesMsg;
-import com.unn.user_core.data_types.BrowseNotificationsMsg;
-import com.unn.user_core.data_types.EditResourceMsg;
-import com.unn.user_core.data_types.RegistrationMsg;
-import com.unn.user_core.data_types.RequestsListMsg;
-import com.unn.user_core.data_types.ScheduleMsg;
+import com.unn.user_core.data_types.*;
 import com.unn.user_core.interfaces.IUimMessageProcessor;
 
 /**
@@ -24,17 +18,27 @@ public class UimMessageProcessor implements IUimMessageProcessor {
     }
     
     @Override
-    public void handleMessage(AvailableResourcesMsg msg) {
+    public void handleMessage(ChangeRequestStatusMsg msg) {
         
     }
     
     @Override
-    public void handleMessage(BrowseNotificationsMsg msg) {
+    public void handleMessage(CreateRequestMsg msg) {
         
     }
     
     @Override
-    public void handleMessage(EditResourceMsg msg) {
+    public void handleMessage(GetMessageMsg msg) {
+        
+    }
+    
+    @Override
+    public void handleMessage(GetScheduleMsg msg) {
+        
+    }
+    
+    @Override
+    public void handleMessage(InfoMsg msg) {
         
     }
     
@@ -42,14 +46,14 @@ public class UimMessageProcessor implements IUimMessageProcessor {
     public void handleMessage(RegistrationMsg msg) {
         
     }
-    
+
     @Override
-    public void handleMessage(RequestsListMsg msg) {
+    public void handleMessage(ResourceMsg msg) {
         
     }
     
     @Override
-    public void handleMessage(ScheduleMsg msg) {
+    public void handleMessage(SendMessageMsg msg) {
         
     }
 }
