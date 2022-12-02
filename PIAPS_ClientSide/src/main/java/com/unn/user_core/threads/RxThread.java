@@ -3,8 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.unn.user_core.threads;
-import com.unn.user_core.data_types.UCM;
-import com.unn.user_core.interfaces.UCMI;
+import com.google.gson.Gson;
 import com.unn.user_core.Log;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -12,20 +11,25 @@ import java.net.Socket;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.unn.user_core.net_protocol.*;
 
 /**
  *
  * @author acer
  */
 public class RxThread extends Thread {
-    DataInputStream dis;
-    Socket socket;
+    protected DataInputStream dis;
+    protected Socket socket;
+    protected Gson gson;
     protected final Queue<String> messageQueue;
-    boolean running;
+    protected boolean running;
+    protected NetPackage netPackage;
 
     public RxThread(Queue<String> queue, Socket socket) {
         this.socket = socket;
         this.messageQueue = queue;
+        this.gson = new Gson();
+//        this.package = new NetPackage(gson, null, null);
     }
     @Override
     public void run()
