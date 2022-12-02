@@ -9,8 +9,14 @@ import com.unn.piap_serverside.net_protocol.NP_InfoPacket;
 import com.unn.piap_serverside.net_protocol.NP_RegistrationPacket;
 import com.unn.piap_serverside.net_protocol.NetPackage;
 import com.unn.piap_serverside.data_types.NetPackageWrapper;
+import com.unn.piap_serverside.net_protocol.DB_RequestRecord;
 import com.unn.piap_serverside.net_protocol.NP_AuthorizationPacket;
+import com.unn.piap_serverside.net_protocol.NP_ChangeRequestStatus;
+import com.unn.piap_serverside.net_protocol.NP_CreateRequestPacket;
+import com.unn.piap_serverside.net_protocol.NP_GetMsgPacket;
+import com.unn.piap_serverside.net_protocol.NP_GetSchedulePacket;
 import com.unn.piap_serverside.net_protocol.NP_ResoursePacket;
+import com.unn.piap_serverside.net_protocol.NP_SendMsgPacket;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,7 +36,9 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
     private BufferedWriter clientOut;
     private boolean serSuccess;
     private boolean isAuth = false;
+    private boolean isCoordinator = false;
     private final int portNum;
+    private String login = null;
             
     
     // DO NOT CALL .start() if exception occured. Just clear created object
@@ -86,6 +94,11 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
                     } else {
                         if (ap.respType == NP_AuthorizationPacket.RESPONSE_TYPE.AUTHORIZED) {
                             isAuth = true;
+                            if (ap.password.equals(NP_RegistrationPacket.USER_TYPE.COORDINATOR.name()))
+                                isCoordinator = true;
+                            else
+                                isCoordinator = false;
+                            login = ap.login;
                         } else {
                             isAuth = false;
                         }
@@ -165,6 +178,167 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
                         .setFrom(SCM.TID.CLIENT_TX_THREAD)
                         .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
                         .setType(SCM.TYPE.RXT_RESOURSE_GET_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_SEND_MSG_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_SendMsgPacket smsgp = new NP_SendMsgPacket(false, null, NP_SendMsgPacket.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED);
+                    txNpToClient(smsgp);
+                    return true;
+                }
+                
+                NP_SendMsgPacket smsp = (NP_SendMsgPacket) msg.body;
+                if (!smsp.msg.loginFrom.equals(login)) {
+                    NP_SendMsgPacket smsgp = new NP_SendMsgPacket(false, null, NP_SendMsgPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN_FROM);
+                    txNpToClient(smsgp);
+                    return true;
+                }
+                
+                if (!isCoordinator) {
+                    NP_SendMsgPacket smsgp = new NP_SendMsgPacket(false, null, NP_SendMsgPacket.RESPONSE_TYPE.ERROR_ACCESS_DENIED);
+                    txNpToClient(smsgp);
+                    return true;
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_SEND_MSG_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_GET_MSG_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_GetMsgPacket gmsgp = new NP_GetMsgPacket(false, null, NP_GetMsgPacket.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED, null);
+                    txNpToClient(gmsgp);
+                    return true;
+                }
+                
+                NP_GetMsgPacket gmp = (NP_GetMsgPacket) msg.body;
+                if (!gmp.login.equals(login)) {
+                    NP_GetMsgPacket gmsgp = new NP_GetMsgPacket(false, null, NP_GetMsgPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN, null);
+                    txNpToClient(gmsgp);
+                    return true;
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_GET_MSG_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_CREATE_REQUEST_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_CreateRequestPacket ncpr = new NP_CreateRequestPacket(false, null,
+                            NP_CreateRequestPacket.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED, null);
+                    txNpToClient(ncpr);
+                    return true;
+                }
+                
+                NP_CreateRequestPacket crp = (NP_CreateRequestPacket) msg.body;
+                if (!crp.rr.login.equals(login)) {
+                    NP_CreateRequestPacket ncpr = new NP_CreateRequestPacket(false, null,
+                            NP_CreateRequestPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN, null);
+                    txNpToClient(ncpr);
+                    return true;
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_CREATE_REQUEST_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_GET_SCHEDULE_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_GetSchedulePacket ngsp = new NP_GetSchedulePacket(false,
+                            0, 0, 0, null, null,
+                            NP_GetSchedulePacket.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED, null);
+                    txNpToClient(ngsp);
+                    return true;
+                }
+                
+                NP_GetSchedulePacket gsp = (NP_GetSchedulePacket) msg.body;
+                if (gsp.reqStat.isEmpty()) {
+                    NP_GetSchedulePacket ngsp = new NP_GetSchedulePacket(false,
+                        0, 0, 0, null, null,
+                        NP_GetSchedulePacket.RESPONSE_TYPE.ERROR_REQUESTED_STATUSES_EMPTY, null);
+                    txNpToClient(ngsp);
+                    return true;
+                }
+                
+                if (!isCoordinator) {
+                    if (gsp.loginSearchFor == null) {
+                        if (gsp.year == 0 && gsp.month == 0 && gsp.day == 0) {
+                            NP_GetSchedulePacket ngsp = new NP_GetSchedulePacket(false,
+                                0, 0, 0, null, null,
+                                NP_GetSchedulePacket.RESPONSE_TYPE.ERROR_ACCESS_DENIED, null);
+                            txNpToClient(ngsp);
+                            return true;
+                        }
+                        
+                        if (gsp.reqStat.size() != 1 || gsp.reqStat.get(0) != DB_RequestRecord.REQ_STATUS.APPROVED) {
+                            NP_GetSchedulePacket ngsp = new NP_GetSchedulePacket(false,
+                                0, 0, 0, null, null,
+                                NP_GetSchedulePacket.RESPONSE_TYPE.ERROR_ACCESS_DENIED, null);
+                            txNpToClient(ngsp);
+                            return true;
+                        }
+                    } else {
+                        if (!gsp.loginSearchFor.equals(login)) {
+                            NP_GetSchedulePacket ngsp = new NP_GetSchedulePacket(false,
+                                0, 0, 0, null, null,
+                                NP_GetSchedulePacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN, null);
+                            txNpToClient(ngsp);
+                            return true;
+                        }
+                    }
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_GET_SCHEDULE_ACQUIRED)
+                        .setBody(npw);
+                scktMgrThrd.sendMessage(nmsg);
+                return true;
+            }
+            
+            case RXT_CHANGE_REQUEST_STATUS_ACQUIRED -> {
+                if (!isAuth) {
+                    NP_ChangeRequestStatus ncrp = new NP_ChangeRequestStatus(false,
+                            null, null, NP_ChangeRequestStatus.RESPONSE_TYPE.ERROR_NOT_AUTHORIZED);
+                    txNpToClient(ncrp);
+                    return true;
+                }
+                
+                if (!isCoordinator) {
+                    NP_ChangeRequestStatus ncrp = new NP_ChangeRequestStatus(false,
+                            null, null, NP_ChangeRequestStatus.RESPONSE_TYPE.ERROR_ACCESS_DENIED);
+                    txNpToClient(ncrp);
+                    return true;
+                }
+                
+                NetPackageWrapper npw = new NetPackageWrapper(connUUID, msg.body);
+                SCM nmsg = SCM.nm()
+                        .setFrom(SCM.TID.CLIENT_TX_THREAD)
+                        .setTo(SCM.TID.SOCKET_MANAGER_THREAD)
+                        .setType(SCM.TYPE.RXT_CHANGE_REQUEST_STATUS_ACQUIRED)
                         .setBody(npw);
                 scktMgrThrd.sendMessage(nmsg);
                 return true;
@@ -377,6 +551,86 @@ public class ClientConnection extends ThreadBase implements NetPackage.Serialize
                     .setBody(rp);
             } else {
                 String errStr = "Server received get_resourse response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (smsgp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_SEND_MSG_ACQUIRED)
+                        .setBody(smsgp);
+            } else {
+                String errStr = "Server received send_message response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (gmsgp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_GET_MSG_ACQUIRED)
+                        .setBody(gmsgp);
+            } else {
+                String errStr = "Server received get_message response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_createRequestPacketAcquired(NP_CreateRequestPacket crp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (crp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_CREATE_REQUEST_ACQUIRED)
+                        .setBody(crp);
+            } else {
+                String errStr = "Server received create_request response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_getSchedulePacketAcquired(NP_GetSchedulePacket gsp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (gsp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_GET_SCHEDULE_ACQUIRED)
+                        .setBody(gsp);
+            } else {
+                String errStr = "Server received get_schedule response packet which is forbidden";
+                msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
+                        .setBody(errStr);
+            }
+            txThread.sendMessage(msg);
+        }
+
+        @Override
+        public void np_changeReqStatusPacketAcquired(NP_ChangeRequestStatus crp) {
+            SCM msg = SCM.nm()
+                    .setFrom(SCM.TID.CLIENT_RX_THREAD)
+                    .setTo(SCM.TID.CLIENT_TX_THREAD);
+            if (crp.isRequest) {
+                msg.setType(SCM.TYPE.RXT_CHANGE_REQUEST_STATUS_ACQUIRED)
+                        .setBody(crp);
+            } else {
+                String errStr = "Server received change_request_status response packet which is forbidden";
                 msg.setType(SCM.TYPE.RXT_RECEIVER_WRONG_CMD_PACKET_TYPE)
                         .setBody(errStr);
             }

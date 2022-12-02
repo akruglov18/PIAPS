@@ -25,8 +25,9 @@ public class RequestsTableRecord {
     private String status;
     private int adtNum;
     private String regDate;
-    private String regTime;
     private int chairCnt;
     private int projCnt;
     private int boardCnt;
+    private int regTimeStart;
+    private int regTimeStop;
 }

@@ -38,9 +38,10 @@ and open the template in the editor.
         <property name="status" column="status"/>
         <property name="adtNum" column="adtnum"/>
         <property name="regDate" column="regdate"/>
-        <property name="regTime" column="regtime"/>
         <property name="chairCnt" column="chaircnt"/>
         <property name="projCnt" column="projcnt"/>
         <property name="boardCnt" column="boardcnt"/>
+        <property name="regTimeStart" column="regtimestart"/>
+        <property name="regTimeStop" column="regtimestop"/>
     </class>
 </hibernate-mapping>

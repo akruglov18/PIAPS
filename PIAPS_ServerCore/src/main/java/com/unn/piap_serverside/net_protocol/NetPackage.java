@@ -107,6 +107,51 @@ public class NetPackage {
                 deserClbk.np_resoursePacketAcquired(rp);
             }
             
+            case SEND_MESSAGE -> {
+                NP_SendMsgPacket smsgp = gson.fromJson(msg.body, NP_SendMsgPacket.class);
+                if (!NP_SendMsgPacket.isCorrect(smsgp)) {
+                    deserClbk.deserializationError(NP_SendMsgPacket.class, NP_SendMsgPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_sendMsgPacketAcquired(smsgp);
+            }
+            
+            case GET_MESSAGES -> {
+                NP_GetMsgPacket gmsgp = gson.fromJson(msg.body, NP_GetMsgPacket.class);
+                if (!NP_GetMsgPacket.isCorrect(gmsgp)) {
+                    deserClbk.deserializationError(NP_GetMsgPacket.class, NP_GetMsgPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_getMsgPacketAcquired(gmsgp);
+            }
+            
+            case CREATE_REQUEST -> {
+                NP_CreateRequestPacket crp = gson.fromJson(msg.body, NP_CreateRequestPacket.class);
+                if (!NP_CreateRequestPacket.isCorrect(crp)) {
+                    deserClbk.deserializationError(NP_CreateRequestPacket.class, NP_CreateRequestPacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_createRequestPacketAcquired(crp);
+            }
+            
+            case GET_SCHEDULE -> {
+                NP_GetSchedulePacket gsp = gson.fromJson(msg.body, NP_GetSchedulePacket.class);
+                if (!NP_GetSchedulePacket.isCorrect(gsp)) {
+                    deserClbk.deserializationError(NP_GetSchedulePacket.class, NP_GetSchedulePacket.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_getSchedulePacketAcquired(gsp);
+            }
+            
+            case CHANGE_REQ_STATUS -> {
+                NP_ChangeRequestStatus crs = gson.fromJson(msg.body, NP_ChangeRequestStatus.class);
+                if (!NP_ChangeRequestStatus.isCorrect(crs)) {
+                    deserClbk.deserializationError(NP_ChangeRequestStatus.class, NP_ChangeRequestStatus.class.getName() + " deserialization failure");
+                    return;
+                }
+                deserClbk.np_changeReqStatusPacketAcquired(crs);
+            }
+            
             default -> {
             }
         }
@@ -131,7 +176,12 @@ public class NetPackage {
         /* <Add here more commands> */
         REGISTER,
         AUTHORIZE,
-        GET_RESOURSES
+        GET_RESOURSES,
+        SEND_MESSAGE,
+        GET_MESSAGES,
+        CREATE_REQUEST,
+        GET_SCHEDULE,
+        CHANGE_REQ_STATUS
         
         /* </Add here more commands> */
     }
@@ -144,6 +194,11 @@ public class NetPackage {
         void np_registrationPacketAcquired(NP_RegistrationPacket rrp);
         void np_authorizationPacketAcquired(NP_AuthorizationPacket ap);
         void np_resoursePacketAcquired(NP_ResoursePacket rp);
+        void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp);
+        void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp);
+        void np_createRequestPacketAcquired(NP_CreateRequestPacket crp);
+        void np_getSchedulePacketAcquired(NP_GetSchedulePacket gsp);
+        void np_changeReqStatusPacketAcquired(NP_ChangeRequestStatus crp);
         
         /* </Add here more deserialization callbacks> */
     }
@@ -188,6 +243,31 @@ public class NetPackage {
 
         @Override
         public void np_resoursePacketAcquired(NP_ResoursePacket rp) {
+            
+        }
+
+        @Override
+        public void np_sendMsgPacketAcquired(NP_SendMsgPacket smsgp) {
+            
+        }
+
+        @Override
+        public void np_getMsgPacketAcquired(NP_GetMsgPacket gmsgp) {
+            
+        }
+
+        @Override
+        public void np_createRequestPacketAcquired(NP_CreateRequestPacket crp) {
+            
+        }
+
+        @Override
+        public void np_getSchedulePacketAcquired(NP_GetSchedulePacket gsp) {
+            
+        }
+
+        @Override
+        public void np_changeReqStatusPacketAcquired(NP_ChangeRequestStatus crp) {
             
         }
     }

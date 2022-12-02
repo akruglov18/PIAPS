@@ -112,6 +112,36 @@ public class SocketManagerThread extends ThreadBase {
                 return true;
             }
             
+            case RXT_SEND_MSG_ACQUIRED -> {
+                msg.setTo(SCM.TID.DB_MANAGER_THREAD);
+                router.sendMessage(msg);
+                return true;
+            }
+            
+            case RXT_GET_MSG_ACQUIRED -> {
+                msg.setTo(SCM.TID.DB_MANAGER_THREAD);
+                router.sendMessage(msg);
+                return true;
+            }
+            
+            case RXT_CREATE_REQUEST_ACQUIRED -> {
+                msg.setTo(SCM.TID.DB_MANAGER_THREAD);
+                router.sendMessage(msg);
+                return true;
+            }
+            
+            case RXT_GET_SCHEDULE_ACQUIRED -> {
+                msg.setTo(SCM.TID.DB_MANAGER_THREAD);
+                router.sendMessage(msg);
+                return true;
+            }
+            
+            case RXT_CHANGE_REQUEST_STATUS_ACQUIRED -> {
+                msg.setTo(SCM.TID.DB_MANAGER_THREAD);
+                router.sendMessage(msg);
+                return true;
+            }
+            
             case DBT_SEND_NP_RESPONSE -> {
                 NetPackageWrapper npw = (NetPackageWrapper) msg.body;
                 NetPackage.NetMessageInterface np = (NetPackage.NetMessageInterface) npw.body;

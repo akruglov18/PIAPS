@@ -65,7 +65,7 @@ public abstract class ThreadBase extends Thread implements SCMI {
     
     protected void handleMessage(SCM msg) {
         if (msg.to != ID && msg.to != SCM.TID.GLOBAL) {
-            Log.error("Message rerouting error on thread: " + ID.name());
+            Log.error("Message rerouting error on thread: " + ID.name() + " " + msg.toString());
             return;
         }
         
