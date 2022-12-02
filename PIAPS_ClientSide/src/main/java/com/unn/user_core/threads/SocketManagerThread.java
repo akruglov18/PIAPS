@@ -12,6 +12,8 @@ import java.net.Socket;
 import java.net.InetAddress;
 import com.unn.user_core.Log;
 import java.util.ArrayDeque;
+import com.unn.user_core.net_protocol.*;
+import com.unn.user_core.data_types.UimParser;
 /**
  *
  * @author STALKER
@@ -24,7 +26,7 @@ public class SocketManagerThread extends ThreadBase {
     int port = 3124;
     InetAddress ip;
     protected final ArrayDeque<String> rxMessageQueue;
-    Gson converter;
+    UimParser uimParser;
     
     public SocketManagerThread(UCMI router) {
         super(UCM.TID.SOCKET_MANAGER_THREAD);
@@ -35,9 +37,42 @@ public class SocketManagerThread extends ThreadBase {
         try {
             this.ip = InetAddress.getLocalHost();
             this.socket = new Socket(ip, port);
-            converter = new Gson();
         } catch (IOException ex) {
             Log.error(ex.getMessage());
+        }
+    }
+    
+    @Override
+    public void run() {
+        if (ID == UCM.TID.THREAD_BASE) {
+            Log.error("Wrong thread ID init parameter used on thread: " + super.getName());
+            return;
+        }
+        
+        Log.info(ID.name() + " started");
+        UCM internalMessage = null;
+        String netMessage = null;
+        while(running) {
+            synchronized(messageQueue) {
+                if(!messageQueue.isEmpty()) {
+                    internalMessage = messageQueue.removeLast();
+                }
+            }
+            if (internalMessage != null)
+            {
+                handleMessage(internalMessage);
+                internalMessage = null;
+            }
+            synchronized(rxMessageQueue) {
+                if(!rxMessageQueue.isEmpty()) {
+                    netMessage = rxMessageQueue.removeLast();
+                }
+            }
+            if (netMessage != null)
+            {
+                handleNetMessage(null);
+                netMessage = null;
+            }
         }
     }
 
@@ -56,8 +91,12 @@ public class SocketManagerThread extends ThreadBase {
     @Override
     protected boolean handlePersonalMessage(UCM msg) {
         if (msg.type == UCM.TYPE.IF_THD_UI_MSG) {
-            txThread.addMessage(converter.toJson(msg.body));
+            uimParser.parseMsg(msg.body);
         }
         return true;
+    }
+    
+    protected void handleNetMessage(String msg) {
+        
     }
 }

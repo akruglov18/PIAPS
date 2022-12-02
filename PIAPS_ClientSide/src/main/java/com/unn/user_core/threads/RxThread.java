@@ -20,16 +20,12 @@ import com.unn.user_core.net_protocol.*;
 public class RxThread extends Thread {
     protected DataInputStream dis;
     protected Socket socket;
-    protected Gson gson;
     protected final Queue<String> messageQueue;
     protected boolean running;
-    protected NetPackage netPackage;
 
     public RxThread(Queue<String> queue, Socket socket) {
         this.socket = socket;
         this.messageQueue = queue;
-        this.gson = new Gson();
-//        this.package = new NetPackage(gson, null, null);
     }
     @Override
     public void run()
