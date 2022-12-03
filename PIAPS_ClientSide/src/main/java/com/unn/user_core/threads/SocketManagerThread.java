@@ -13,7 +13,7 @@ import java.net.InetAddress;
 import com.unn.user_core.Log;
 import java.util.ArrayDeque;
 import com.unn.user_core.net_protocol.*;
-import com.unn.user_core.data_types.UimParser;
+import com.unn.user_core.UimParser;
 /**
  *
  * @author STALKER
