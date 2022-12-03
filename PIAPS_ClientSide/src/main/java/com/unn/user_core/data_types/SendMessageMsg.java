@@ -7,6 +7,9 @@ package com.unn.user_core.data_types;
 import lombok.AllArgsConstructor;
 import com.unn.user_core.interfaces.IUimMessage;
 
+import com.unn.user_core.net_protocol.DB_MsgRecord;
+import com.unn.user_core.net_protocol.NP_SendMsgPacket;
+
 /**
  *
  * @author acer
@@ -19,15 +22,5 @@ public class SendMessageMsg implements IUimMessage {
     public DB_MsgRecord msg;
     
     // RESPONSE
-    public SendMessageMsg.RESPONSE_TYPE respType;
-    
-    public static enum RESPONSE_TYPE {
-        OK,
-        ERROR_INTERNAL_SERVER_ERROR,
-        ERROR_NOT_AUTHORIZED,
-        ERROR_LOGIN_FROM_NOT_FOUND,
-        ERROR_LOGIN_TO_NOT_FOUND,
-        ERROR_WRONG_LOGIN_FROM,
-        ERROR_ACCESS_DENIED
-    }
+    public NP_SendMsgPacket.RESPONSE_TYPE respType;
 }

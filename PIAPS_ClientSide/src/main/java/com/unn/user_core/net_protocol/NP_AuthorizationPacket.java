@@ -13,7 +13,8 @@ public class NP_AuthorizationPacket implements NetPackage.NetMessageInterface {
     
     // RESPONSE
     public NP_AuthorizationPacket.RESPONSE_TYPE respType;
-
+    
+    public NP_AuthorizationPacket() {}
     
     public static enum RESPONSE_TYPE {
         AUTHORIZED,

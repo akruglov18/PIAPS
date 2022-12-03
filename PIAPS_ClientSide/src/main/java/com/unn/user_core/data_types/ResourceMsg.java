@@ -3,6 +3,9 @@ package com.unn.user_core.data_types;
 import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import com.unn.user_core.interfaces.IUimMessage;
+import com.unn.user_core.net_protocol.NP_ResoursePacket;
+
+import com.unn.user_core.net_protocol.DB_ResourseRecord;
 
 @AllArgsConstructor
 public class ResourceMsg implements IUimMessage {
@@ -11,12 +14,6 @@ public class ResourceMsg implements IUimMessage {
     // REQUEST
 
     // RESPONSE
-    public ResourceMsg.RESPONSE_TYPE respType;
+    public NP_ResoursePacket.RESPONSE_TYPE respType;
     public ArrayList<DB_ResourseRecord> records;
-    
-    public static enum RESPONSE_TYPE {
-        OK,
-        ERROR_INTERNAL_SERVER_ERROR,
-        ERROR_NOT_AUTHORIZED
-    }
 }

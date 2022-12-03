@@ -7,6 +7,8 @@ package com.unn.user_core.data_types;
 import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import com.unn.user_core.interfaces.IUimMessage;
+import com.unn.user_core.net_protocol.DB_RequestRecord;
+import com.unn.user_core.net_protocol.NP_GetSchedulePacket;
 
 /**
  *
@@ -24,18 +26,6 @@ public class GetScheduleMsg implements IUimMessage {
     public ArrayList<DB_RequestRecord.REQ_STATUS> reqStat;  // requested statuses
     
     // RESPONSE
-    public GetScheduleMsg.RESPONSE_TYPE respType;
+    public NP_GetSchedulePacket.RESPONSE_TYPE respType;
     public ArrayList<DB_RequestRecord> records;
-    
-    
-    public static enum RESPONSE_TYPE {
-        OK,
-        ERROR_INTERNAL_SERVER_ERROR,
-        ERROR_USER_SEARCH_FOR_NOT_FOUND,
-        ERROR_USER_IN_REQUEST_RECORD_NOT_FOUND,
-        ERROR_NOT_AUTHORIZED,
-        ERROR_ACCESS_DENIED,
-        ERROR_WRONG_LOGIN,
-        ERROR_REQUESTED_STATUSES_EMPTY
-    }
 }

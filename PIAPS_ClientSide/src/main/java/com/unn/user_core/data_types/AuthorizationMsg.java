@@ -2,6 +2,7 @@ package com.unn.user_core.data_types;
 
 import lombok.AllArgsConstructor;
 import com.unn.user_core.interfaces.IUimMessage;
+import com.unn.user_core.net_protocol.NP_AuthorizationPacket;
 
 @AllArgsConstructor
 public class AuthorizationMsg implements IUimMessage {
@@ -12,13 +13,5 @@ public class AuthorizationMsg implements IUimMessage {
     public String password;
     
     // RESPONSE
-    public AuthorizationMsg.RESPONSE_TYPE respType;
-
-    
-    public static enum RESPONSE_TYPE {
-        AUTHORIZED,
-        ERROR_WRONG_PASSWORD,
-        ERROR_USER_NOT_FOUND,
-        ERROR_INTERNAL_SERVER_ERROR
-    }
+    public NP_AuthorizationPacket.RESPONSE_TYPE respType;
 }
