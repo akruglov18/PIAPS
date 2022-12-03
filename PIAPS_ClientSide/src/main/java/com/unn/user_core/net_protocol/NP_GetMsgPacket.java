@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
  *
  * @author STALKER
  */
+
 @AllArgsConstructor
 public class NP_GetMsgPacket implements NetPackage.NetMessageInterface {
     public boolean isRequest;

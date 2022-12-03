@@ -6,33 +6,42 @@ package com.unn.user_core.threads;
 
 import com.google.gson.Gson;
 import com.unn.user_core.data_types.UCM;
+import com.unn.user_core.DeserializeCallback;
 import com.unn.user_core.interfaces.UCMI;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.InetAddress;
 import com.unn.user_core.Log;
 import java.util.ArrayDeque;
-import com.unn.user_core.net_protocol.*;
 import com.unn.user_core.UimParser;
+import com.unn.user_core.SocketUimMessageProcessor;
+import com.unn.user_core.net_protocol.NetPackage;
 /**
  *
  * @author STALKER
  */
 public class SocketManagerThread extends ThreadBase {
-    private final UCMI router;
     private final TxThread txThread;
     private final RxThread rxThread;
     private Socket socket;
     InetAddress ip;
     protected final ArrayDeque<String> rxMessageQueue;
     UimParser uimParser;
+    SocketUimMessageProcessor processor;
+    NetPackage netPackage;
+    DeserializeCallback deserializeCallback;
+    Gson gson;
     
     public SocketManagerThread(UCMI router, int port) {
         super(UCM.TID.SOCKET_MANAGER_THREAD);
-        this.router = router;
         this.rxMessageQueue = new ArrayDeque<>();
         this.txThread = new TxThread(socket);
         this.rxThread = new RxThread(rxMessageQueue, socket);
+        processor = new SocketUimMessageProcessor(txThread);
+        uimParser = new UimParser(processor);
+        deserializeCallback = new DeserializeCallback(router);
+        gson = new Gson();
+        netPackage = new NetPackage(gson, deserializeCallback, null);
         try {
             this.ip = InetAddress.getLocalHost();
             this.socket = new Socket(ip, port);
@@ -96,6 +105,6 @@ public class SocketManagerThread extends ThreadBase {
     }
     
     protected void handleNetMessage(String msg) {
-        
+        netPackage.deserialize(msg);
     }
 }

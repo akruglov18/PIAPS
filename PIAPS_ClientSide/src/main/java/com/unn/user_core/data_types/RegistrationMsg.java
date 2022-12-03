@@ -2,6 +2,7 @@ package com.unn.user_core.data_types;
 
 import lombok.AllArgsConstructor;
 import com.unn.user_core.interfaces.IUimMessage;
+import com.unn.user_core.net_protocol.NP_RegistrationPacket;
 
 @AllArgsConstructor
 public class RegistrationMsg implements IUimMessage {
@@ -11,20 +12,8 @@ public class RegistrationMsg implements IUimMessage {
     public String login;
     public String password;
     public String fio;
-    public RegistrationMsg.USER_TYPE userType;
+    public NP_RegistrationPacket.USER_TYPE userType;
     
     // RESPONSE
-    public RegistrationMsg.RESPONSE_TYPE respType;
-    
-    
-    public enum USER_TYPE {
-        COORDINATOR,
-        CUSTOMER
-    }
-    
-    public enum RESPONSE_TYPE {
-        REGISTERED,
-        ERROR_LOGIN_ALREADY_EXISTS,
-        ERROR_INTERNAL_SERVER_ERROR
-    }
+    public NP_RegistrationPacket.RESPONSE_TYPE respType;
 }
