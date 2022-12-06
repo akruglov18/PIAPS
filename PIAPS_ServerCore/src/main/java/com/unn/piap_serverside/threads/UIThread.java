@@ -31,9 +31,6 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
         DBManagerThread dbmt = new DBManagerThread(routerThread);
         routerThread.registerChild(dbmt);
         
-        ResourceManagerThread rmt = new ResourceManagerThread(routerThread);
-        routerThread.registerChild(rmt);
-        
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(routerThread));
         
         SocketManagerThread smt = new SocketManagerThread(routerThrd);
@@ -48,7 +45,6 @@ public class UIThread extends javax.swing.JFrame implements UIChangerThread.UICT
         routerThread.start();
         uict.start();
         dbmt.start();
-        rmt.start();
         smt.start();
         
         
