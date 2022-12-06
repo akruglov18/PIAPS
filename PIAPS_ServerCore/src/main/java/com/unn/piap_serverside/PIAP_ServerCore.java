@@ -42,6 +42,12 @@ import org.hibernate.cfg.Configuration;
  * @author STALKER
  */
 public class PIAP_ServerCore {
+    
+    public PIAP_ServerCore() {
+        
+    }
+    
+    
     /*
     
     public static class DeserClbkImplementation implements NetPackage.DeserializeCallbackInterface {
@@ -137,8 +143,8 @@ public class PIAP_ServerCore {
     }*/
     
     
-    public static void main(String[] args) { /*
-        
+    //public static void main(String[] args) { 
+        /*
         Gson gson = new GsonBuilder().create();
         DeserClbkImplementation deserClbk = new DeserClbkImplementation();
         NetPackage np = new NetPackage(gson, deserClbk, new SerClbkImplementation());
@@ -215,5 +221,5 @@ public class PIAP_ServerCore {
             }
         }
 */
-    }
+    //}
 }
