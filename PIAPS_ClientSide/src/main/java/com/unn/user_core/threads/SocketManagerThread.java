@@ -35,19 +35,21 @@ public class SocketManagerThread extends ThreadBase {
     public SocketManagerThread(UCMI router, int port) {
         super(UCM.TID.SOCKET_MANAGER_THREAD);
         this.rxMessageQueue = new ArrayDeque<>();
-        this.txThread = new TxThread(socket);
+        try {
+            ip = InetAddress.getLocalHost();
+            socket = new Socket("localhost", port);
+        } catch (IOException ex) {
+            Log.error(ex.getMessage());
+        }
         this.rxThread = new RxThread(rxMessageQueue, socket);
+        this.txThread = new TxThread(socket);
         processor = new SocketUimMessageProcessor(txThread);
         uimParser = new UimParser(processor);
         deserializeCallback = new DeserializeCallback(router);
         gson = new Gson();
         netPackage = new NetPackage(gson, deserializeCallback, null);
-        try {
-            this.ip = InetAddress.getLocalHost();
-            this.socket = new Socket(ip, port);
-        } catch (IOException ex) {
-            Log.error(ex.getMessage());
-        }
+        rxThread.start();
+        txThread.start();
     }
     
     @Override
