@@ -22,7 +22,7 @@ public class DeserializeCallback implements NetPackage.DeserializeCallbackInterf
     private void sendMessage(IUimMessage msg) {
         UCM cmsg = UCM.nm()
                 .setTo(UCM.TID.INTERFACE_THREAD)
-                .setFrom(UCM.TID.ROUTER_THREAD)
+                .setFrom(UCM.TID.SOCKET_MANAGER_THREAD)
                 .setType(UCM.TYPE.IF_THD_UI_MSG)
                 .setBody(msg);
         router.sendMessage(cmsg);

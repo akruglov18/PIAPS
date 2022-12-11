@@ -4,8 +4,9 @@
  */
 package com.unn.user_core.threads;
 import com.unn.user_core.Log;
-import java.io.DataOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
 public class TxThread extends Thread {
     protected final ArrayDeque<String> messageQueue;
     private final Socket socket;
-    private DataOutputStream dos;
+    private BufferedWriter writer;
     private boolean running;
 
     public TxThread(Socket socket) {
@@ -37,7 +38,7 @@ public class TxThread extends Thread {
         running = true;
         String msg;
         try {
-            dos = new DataOutputStream(socket.getOutputStream());
+            this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (IOException ex) {
             Logger.getLogger(TxThread.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -56,7 +57,7 @@ public class TxThread extends Thread {
         }
         Log.info("TxThread stopped");
         try {
-            dos.close();
+            writer.close();
         } catch (IOException ex) {
             Log.error("Tx thread exception: " + ex.toString());
         }
@@ -69,8 +70,8 @@ public class TxThread extends Thread {
     
     private void handleMessage(String msg) {
         try {
-            if (dos != null)
-                dos.writeUTF(msg);
+            if (writer != null)
+                writer.write(msg + "\n");
         } catch (IOException ex) {
             Log.error("Tx thread exception: " + ex.toString());
         }
