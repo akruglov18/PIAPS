@@ -96,6 +96,16 @@ public class Testing extends Thread implements NetPackage.DeserializeCallbackInt
                     continue;
                 }
                 
+                if (resp.getClass().getName().equals(NP_InfoPacket.class.getName())) {
+                    if (!test.awaitedResponse.getClass().getName().equals(NP_InfoPacket.class.getName())) {
+                        Log.info("TEST: " + (currTest - 1) + " NOT PASSED: WRONG RESPONSE: " + resp.toString());
+                    } else {
+                        Log.info("TEST: " + (currTest - 1) + " PASSED");
+                        testsPassed += 1;
+                    }
+                    continue;
+                }
+                
                 if (!test.awaitedResponse.equals(resp)) {
                     Log.info("TEST: " + (currTest - 1) + " NOT PASSED: WRONG RESPONSE: " + resp.toString());
                     continue;

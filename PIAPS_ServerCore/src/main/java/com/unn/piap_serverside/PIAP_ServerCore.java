@@ -143,6 +143,16 @@ public class PIAP_ServerCore {
         
        
         /* <NP_RegistrationPacket> */
+        tests.addTest(new NP_RegistrationPacket(false, null, null, null, null, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_RegistrationPacket(true, null, TST_PSWD, TST_FIO, NP_RegistrationPacket.USER_TYPE.COORDINATOR, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_RegistrationPacket(true, TST_LGN, null, TST_FIO, NP_RegistrationPacket.USER_TYPE.COORDINATOR, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_RegistrationPacket(true, TST_LGN, TST_PSWD, null, NP_RegistrationPacket.USER_TYPE.COORDINATOR, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_RegistrationPacket(true, TST_LGN, TST_PSWD, TST_FIO, null, null),
+                new NP_InfoPacket(null));
         tests.addTest(new NP_RegistrationPacket(true, TST_LGN, TST_PSWD, TST_FIO, NP_RegistrationPacket.USER_TYPE.COORDINATOR, null),
                 NP_RegistrationPacket.RESPONSE_TYPE.REGISTERED);
         tests.addTest(new NP_RegistrationPacket(true, TST_LGN, TST_PSWD, TST_FIO, NP_RegistrationPacket.USER_TYPE.COORDINATOR, null),
@@ -179,6 +189,12 @@ public class PIAP_ServerCore {
         
         
         /* <NP_AuthorizationPacket> */
+        tests.addTest(new NP_AuthorizationPacket(false, null, null, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_AuthorizationPacket(true, null, TST_PSWD, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_AuthorizationPacket(true, TST_LGN, null, null),
+                new NP_InfoPacket(null));
         tests.addTest(new NP_AuthorizationPacket(true, "qwerty", TST_PSWD, null),
                 NP_AuthorizationPacket.RESPONSE_TYPE.ERROR_USER_NOT_FOUND);
         tests.addTest(new NP_AuthorizationPacket(true, TST_LGN, "qwerty", null),
@@ -193,6 +209,11 @@ public class PIAP_ServerCore {
         /* </NP_ResoursePacket> */
         
         /* <NP_SendMsgPacket> */
+        tests.addTest(new NP_SendMsgPacket(false, null, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_SendMsgPacket(true, null, null),
+                new NP_InfoPacket(null));
+        
         DB_MsgRecord tmsgr2 = new DB_MsgRecord("LGN_FROM", "LGN_TO", null, "theme", "body");
         tests.addTest(new NP_SendMsgPacket(true, tmsgr2, null),
                 NP_SendMsgPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN_FROM);
@@ -207,6 +228,10 @@ public class PIAP_ServerCore {
         /* </NP_SendMsgPacket> */
         
         /* <NP_GetMsgPacket> */
+        tests.addTest(new NP_GetMsgPacket(false, null, null, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_GetMsgPacket(true, null, null, null),
+                new NP_InfoPacket(null));
         tests.addTest(new NP_GetMsgPacket(true, "qwerty", null, null),
                 NP_GetMsgPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN);
         tests.addTest(new NP_GetMsgPacket(true, TST_LGN, null, null),
@@ -214,6 +239,11 @@ public class PIAP_ServerCore {
         /* </NP_GetMsgPacket> */
         
         /* <NP_CreateRequestPacket> */
+        tests.addTest(new NP_CreateRequestPacket(false, null, null, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_CreateRequestPacket(true, null, null, null),
+                new NP_InfoPacket(null));
+        
         DB_RequestRecord rr2 = new DB_RequestRecord(null, "qwerty", null, 2022, 12, 15, 1, 2, 5, 2, 2, 2);
         tests.addTest(new NP_CreateRequestPacket(true, rr2, null, null),
                 NP_CreateRequestPacket.RESPONSE_TYPE.ERROR_WRONG_LOGIN);
@@ -228,6 +258,10 @@ public class PIAP_ServerCore {
         /* </NP_CreateRequestPacket> */
         
         /* <NP_GetSchedulePacket> */
+        tests.addTest(new NP_GetSchedulePacket(false, 0, 0, 0, null, null, null, null),
+                new NP_InfoPacket(null));
+        tests.addTest(new NP_GetSchedulePacket(true, 0, 0, 0, null, null, null, null),
+                new NP_InfoPacket(null));
         tests.addTest(new NP_GetSchedulePacket(true, 0, 0, 0, null, reqStat1, null, null),
                 NP_GetSchedulePacket.RESPONSE_TYPE.OK);
         /* </NP_GetSchedulePacket> */
